@@ -4,12 +4,15 @@ const todoList=document.querySelector(".todolist")
 const backdrop=document.querySelector(".backdrop")
 const modal=document.querySelector(".modal")
 const closeModalBtn= document.querySelector(".close-modal")
+const editForm= document.querySelector(".edit-form")
+const editInput= document.querySelector(".edit-input")
+const filterTodos= document.querySelector(".filter-todos")
 let todos=[];
-
+let filterValue="all"
 
 class UI{
 addNewTodo(){
-      if(!todoInput.value) return null;
+      if (!todoInput.value) return null;
 
       const newTodo={
           id: Date.now(),
@@ -17,9 +20,10 @@ addNewTodo(){
           title: todoInput.value,
           isCompleted: false,
       }
-todos=[...todos, newTodo];
-this.createTodos(todos)
-
+      todos=[...todos, newTodo];
+      const ui= new UI();
+ui.filteredTodo()
+      
 }
 createTodos(todos){
 let result="";
@@ -35,42 +39,77 @@ todoList.innerHTML=result;
 todoInput.value="";
 
 const editTodoBtn=[...document.querySelectorAll(".todo__edit")];
-editTodoBtn.forEach((btn)=>btn.addEventListener("click",this.editTodo))
+editTodoBtn.forEach((btn)=>btn.addEventListener("click",this.openEditTodo))
 const checkTodoBtn=[...document.querySelectorAll(".todo__check")];
 checkTodoBtn.forEach((btn)=>btn.addEventListener("click",this.checkedTodo))
 const removeTodoBtn=[...document.querySelectorAll(".todo__remove")];
 removeTodoBtn.forEach((btn)=>btn.addEventListener("click",this.removedTodo))
 });
 }
-editTodo(e){
+openEditTodo(e){
 const id=e.target.dataset.todoId
 backdrop.classList.remove("hidden")
 modal.classList.remove("hidden")
+// console.log(id);
+const todo= todos.find((t)=>Number(t.id)===Number(id));
+// console.log(todo);
+editInput.value=todo.title;
+editInput.id=todo.id;
 };
+edetedTodo(){
+    
+const id = editInput.id;
+const todo= todos.find((t)=>Number(t.id)===Number(id))
+todo.title=editInput.value;
+const ui= new UI();
+ui.filteredTodo()
+ui.closeModul()
+}
 checkedTodo(e){
-console.log("checkeeeed");
+   
+// console.log("checkeeeed");
 const id=Number(e.target.dataset.todoId);
 const todo=todos.find((todo)=>todo.id===id);
 todo.isCompleted=!todo.isCompleted;
-console.log(todo.isCompleted);
+// console.log(todo.isCompleted);
 const ui= new UI();
-ui.createTodos(todos)
+ui.filteredTodo()
 };
 removedTodo(e){
-console.log("reeeemove");
+// console.log("reeeemove");
+
 const id=Number(e.target.dataset.todoId);
 todos= todos.filter((todo)=>todo.id!==id);
 const ui= new UI();
-ui.createTodos(todos)
+ui.filteredTodo()
 }
 closeModul(){
     backdrop.classList.add("hidden")
     modal.classList.add("hidden") 
 }
+filteredTodo(){
+    switch(filterValue) {
+        case "all":
+        {this.createTodos(todos)
+          break;}
+        case "completed":
+          {const filteredTodos=todos.filter((t)=>t.isCompleted)
+          this.createTodos(filteredTodos)
+          break;}
+          case "uncompleted":
+          { const filteredTodos=todos.filter((t)=>!t.isCompleted)
+            this.createTodos(filteredTodos)
+          break;}
+        default:
+            createTodos(todos);
+                break;
+          // code block
+      }
+}
 }
 
 class Storage{
-
+   
 }
 todoForm.addEventListener("submit",(e)=>{
     e.preventDefault()
@@ -84,4 +123,14 @@ closeModalBtn.addEventListener("click",()=>{
 backdrop.addEventListener('click',()=>{
     const ui= new UI();
     ui.closeModul()
+})
+editForm.addEventListener("submit", (e)=>{
+    e.preventDefault()
+    const ui= new UI();
+    ui.edetedTodo()
+})
+filterTodos.addEventListener("change",(e)=>{
+    filterValue= e.target.value
+    const ui= new UI();
+    ui.filteredTodo()
 })
